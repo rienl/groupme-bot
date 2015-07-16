@@ -41,6 +41,7 @@ function respond() {
     page(request);
     motd(request);
     links(request);
+    chicken(request);
 
     this.res.writeHead(200);
     this.res.end();
@@ -126,6 +127,15 @@ function links(request) {
 }
 
 
+function chicken(request) {
+    if (request.text.indexOf("!chicken") === 0) {
+        bot_for_group(request, function(botID) {
+            postImage(botID, 'http://i.groupme.com/200x108.gif.7c231d7f7c7a4bc8af704313e9bbfcb1');
+        });
+    }
+}
+
+
 function postMessage(botID, message) {
     if (message == null) {
         console.log("Skipping sending of null message")
@@ -145,6 +155,44 @@ function postMessage(botID, message) {
     botReq = HTTPS.request(postOptions, function(res) {
         if(res.statusCode == 202) {
             console.log('--------\n' + message + '\n\nSent as ' + botID + '\n--------');
+        } else {
+            console.log('rejecting bad status code ' + res.statusCode);
+        }
+    });
+    botReq.on('error', function(err) {
+        console.log('error posting message '  + JSON.stringify(err));
+    });
+    botReq.on('timeout', function(err) {
+        console.log('timeout posting message '  + JSON.stringify(err));
+    });
+    botReq.end(JSON.stringify(body));
+}
+
+function postImage(botID, url) {
+    if (url == null) {
+        console.log("Skipping sending of null url")
+        return
+    }
+    if (botID == null) {
+        console.log("Skipping sending of null botID")
+        return
+    }
+
+    var body, botReq;
+    body = {
+        "bot_id" : botID,
+        "text" : '',
+        "attachments" : [
+            {
+                "type"  : "image",
+                "url"   : url
+            }
+        ]
+    };
+
+    botReq = HTTPS.request(postOptions, function(res) {
+        if(res.statusCode == 202) {
+            console.log('--------\n' + url + '\n\nSent as ' + botID + '\n--------');
         } else {
             console.log('rejecting bad status code ' + res.statusCode);
         }
