@@ -57,7 +57,7 @@ function getMotd(callback) {
 }
 
 
-function bot_for_group(callback) {
+function bot_for_group(request, callback) {
     if (request.group_id in group_bot_map) {
         return callback(group_bot_map[request.group_id]);
     } else {
@@ -92,7 +92,7 @@ function page(request) {
 function motd(request) {
     if (request.text.indexOf("!motd") === 0) {
         getMotd(function(message) {
-            bot_for_group(function(botID) {
+            bot_for_group(request, function(botID) {
                 postMessage(botID, message);
             });
         });
