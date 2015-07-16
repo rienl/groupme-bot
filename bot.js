@@ -31,7 +31,7 @@ function respond() {
 
     console.log(request);
 
-    if (request.id in botIDS || request.name == botName || request.system == true) {
+    if (request.name == botName || request.system == true) {
         // Don't respond to bot messages or system messages
         return;
     }
