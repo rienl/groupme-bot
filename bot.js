@@ -5,6 +5,7 @@ var cool = require('cool-ascii-faces');
 var moderatorsGroup = process.env.MODERATORS_GROUP_ID;
 var motdIDs = process.env.MOTD_IDS.split(",");
 var motdUrl = process.env.MOTD_URL;
+var linksUrl = process.env.LINKS_URL;
 
 var pageIDS = process.env.PAGE_IDS.split(",");
 
@@ -39,6 +40,7 @@ function respond() {
     // Try all the things!
     page(request);
     motd(request);
+    links(request);
 
     this.res.writeHead(200);
     this.res.end();
@@ -46,6 +48,19 @@ function respond() {
 
 function getMotd(callback) {
     requests.get(motdUrl,
+        function(error, response, body) {
+            if (error == null && response.statusCode == 200) {
+                return callback(body);
+            } else {
+                return callback(null);
+            }
+        }
+    );
+}
+
+
+function getLinks(callback) {
+    requests.get(linksUrl,
         function(error, response, body) {
             if (error == null && response.statusCode == 200) {
                 return callback(body);
@@ -92,6 +107,17 @@ function page(request) {
 function motd(request) {
     if (request.text.indexOf("!motd") === 0) {
         getMotd(function(message) {
+            bot_for_group(request, function(botID) {
+                postMessage(botID, message);
+            });
+        });
+    }
+}
+
+
+function links(request) {
+    if (request.text.indexOf("!links") === 0) {
+        getLinks(function(message) {
             bot_for_group(request, function(botID) {
                 postMessage(botID, message);
             });
