@@ -29,8 +29,8 @@ function respond() {
     }
 
     // Try all the things!
-    page();
-    motd();
+    page(request);
+    motd(request);
 
     this.res.writeHead(200);
     this.res.end();
