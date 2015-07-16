@@ -116,11 +116,9 @@ function postMessage(botID, message) {
         "text" : message
     };
 
-    console.log('--------\n' + message + '\n\nSent as ' + botID + '\n--------');
-
     botReq = HTTPS.request(postOptions, function(res) {
         if(res.statusCode == 202) {
-            //neat
+            console.log('--------\n' + message + '\n\nSent as ' + botID + '\n--------');
         } else {
             console.log('rejecting bad status code ' + res.statusCode);
         }
