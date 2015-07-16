@@ -48,20 +48,20 @@ function getMotd(callback) {
     requests.get(motdUrl,
         function(error, response, body) {
             if (error == null && response.statusCode == 200) {
-                callback(body);
+                return callback(body);
             } else {
-                callback(null);
+                return callback(null);
             }
         }
     );
 }
 
 
-function bot_for_group(request) {
+function bot_for_group(callback) {
     if (request.group_id in group_bot_map) {
-        return group_bot_map[request.group_id];
+        return callback(group_bot_map[request.group_id]);
     } else {
-        return null;
+        return callback(null);
     }
 }
 
@@ -92,7 +92,9 @@ function page(request) {
 function motd(request) {
     if (request.text.indexOf("!motd") === 0) {
         getMotd(function(message) {
-            postMessage(bot_for_group(request), message);
+            bot_for_group(function(botID) {
+                postMessage(botID, message);
+            });
         });
     }
 }
