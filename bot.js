@@ -37,7 +37,7 @@ function respond() {
 }
 
 function getMotd(callback) {
-    requests.get(,
+    requests.get(motdUrl,
         function(error, response, body) {
             if (error == null && response.statusCode == 200) {
                 callback(body);
