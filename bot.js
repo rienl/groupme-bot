@@ -139,10 +139,23 @@ function eggs(request) {
             // key ; outgoing ; user_id
             // test the user_id
             if (request.user_id != g[2]) {
-                return
+                continue;
             }
         }
-        if (request.text.toLowerCase().indexOf(g[0]) === 0) {
+
+        var doSend = false;
+        if ((g[0].indexOf("!") === 0) && (request.text.toLowerCase().indexOf(g[0]) === 0)) {
+            // ! command
+            doSend = true;
+        } else {
+            // regex
+            var r = new RegExp(g[0]);
+            if (request.text.search(r) != -1) {
+                doSend = true;
+            }
+        }
+
+        if (doSend === true) {
             bot_for_group(request, function(botID) {
                 if (g[1].indexOf("http") === 0) {
                     postImage(botID, g[1]);
