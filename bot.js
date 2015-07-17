@@ -19,11 +19,16 @@ var postOptions = {
 
 
 var group_bot_map = {}
-
 var mapping = process.env.GROUP_BOT_MAP.split(",")
 for (x in mapping) {
     var s = mapping[x].split(';');
     group_bot_map[s[0]] = s[1];
+}
+
+var egg_map = []
+var gs = process.env.EGGS.split(",");
+for (x in gs) {
+    egg_map.push(gs[x].split(';'));
 }
 
 
@@ -41,7 +46,7 @@ function respond() {
     page(request);
     motd(request);
     links(request);
-    chicken(request);
+    eggs(request);
 
     this.res.writeHead(200);
     this.res.end();
@@ -127,11 +132,25 @@ function links(request) {
 }
 
 
-function chicken(request) {
-    if (request.text.indexOf("!chicken") === 0) {
-        bot_for_group(request, function(botID) {
-            postImage(botID, 'http://i.groupme.com/200x108.gif.7c231d7f7c7a4bc8af704313e9bbfcb1');
-        });
+function eggs(request) {
+    for (e in eggs) {
+        g = eggs[e];
+        if (g.length === 3) {
+            // key ; outgoing ; user_id
+            // test the user_id
+            if (request.user_id != g[2]) {
+                return
+            }
+        }
+        if (request.text.toLowerCase().indexOf(g[0]) === 0) {
+            bot_for_group(request, function(botID) {
+                if (g[1].indexOf("http") === 0) {
+                    postImage(botID, g[1]);
+                } else {
+                    postMessage(botID, g[1]);
+                }
+            });
+        }
     }
 }
 
