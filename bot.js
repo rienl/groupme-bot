@@ -133,8 +133,8 @@ function links(request) {
 
 
 function eggs(request) {
-    for (e in eggs) {
-        g = eggs[e];
+    for (e in egg_map) {
+        g = egg_map[e];
         if (g.length === 3) {
             // key ; outgoing ; user_id
             // test the user_id
