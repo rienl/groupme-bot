@@ -1,15 +1,15 @@
 var HTTPS = require('https');
 var requests = require('request');
 var cool = require('cool-ascii-faces');
+var jf = require('jsonfile');
 
-var moderatorsGroup = process.env.MODERATORS_GROUP_ID;
-var motdIDs = process.env.MOTD_IDS.split(",");
+var moderatorGroups = [];
+
 var motdUrl = process.env.MOTD_URL;
 var linksUrl = process.env.LINKS_URL;
 
-var pageIDS = process.env.PAGE_IDS.split(",");
-
-var botName = "H.P. Lovecraft"
+var pageIDS = [];
+var motdIDs = [];
 
 var postOptions = {
                     hostname: 'api.groupme.com',
@@ -17,19 +17,53 @@ var postOptions = {
                     method: 'POST'
                   };
 
-
-var group_bot_map = {}
-var mapping = process.env.GROUP_BOT_MAP.split(",")
-for (x in mapping) {
-    var s = mapping[x].split(';');
-    group_bot_map[s[0]] = s[1];
+function get_json_url(url, callback) {
+    var options = {
+        uri : url,
+        method : 'GET'
+    };
+    var res = '';
+    requests(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            return callback(JSON.parse(body));
+        } else {
+            return callback(null);
+        }
+    });
 }
 
-var egg_map = []
-var gs = process.env.EGGS.split(",");
-for (x in gs) {
-    egg_map.push(gs[x].split(';'));
-}
+
+// Process the botmap JSON file
+var group_bot_map = {};
+get_json_url(process.env.BOTMAP_URL,
+    function(botmap) {
+        for (x in botmap) {
+            bm = botmap[x];
+            group_bot_map[bm.group] = bm.bot_id;
+            if (bm.mods === true) {
+                moderatorGroups.push(bm.group);
+            }
+            if (bm.motd === true) {
+                motdIDs.push(bm.bot_id);
+            }
+            if (bm.page === true) {
+                pageIDS.push(bm.bot_id);
+            }
+        }
+    }
+);
+
+
+// Process the magics
+var mappings = [];
+var magic = jf.readFile("magic.json", function(err, obj) {
+    // Process the eggs
+    get_json_url(process.env.EGGS_URL,
+        function(eggmap) {
+            mappings = obj.concat(eggmap);
+        }
+    );
+});
 
 
 function respond() {
@@ -46,7 +80,7 @@ function respond() {
     page(request);
     motd(request);
     links(request);
-    eggs(request);
+    magics(request);
 
     this.res.writeHead(200);
     this.res.end();
@@ -99,7 +133,7 @@ function postMotd() {
 
 
 function page(request) {
-    if (request.group_id == moderatorsGroup) {
+    if (request.group_id in moderatorGroups) {
         if (request.text.indexOf("!page") === 0) {
             message = request.text.replace("!page", "");
             for (i in pageIDS) {
@@ -132,37 +166,50 @@ function links(request) {
 }
 
 
-function eggs(request) {
-    for (e in egg_map) {
-        g = egg_map[e];
-        if (g.length === 3) {
-            // key ; outgoing ; user_id
-            // test the user_id
-            if (request.user_id != g[2]) {
+function magics(request) {
+    for (e in mappings) {
+        m = mappings[e];
+
+        // Only allow certain users
+        if ("users" in m) {
+            if (m.users.indexOf(request.user_id) === -1) {
+                continue;
+            }
+        }
+
+        // Only allow certain groups (rooms)
+        if ("groups" in m) {
+            if (m.groups.indexOf(request.group_id) === -1) {
                 continue;
             }
         }
 
         var doSend = false;
-        if ((g[0].indexOf("!") === 0) && (request.text.toLowerCase().indexOf(g[0]) === 0)) {
-            // ! command
-            doSend = true;
-        } else {
+
+        if ("key" in m) {
+            // ! commands
+            if (request.text.toLowerCase().indexOf(m.key) === 0) {
+                doSend = true;
+            }
+        } else if ("regex" in m) {
             // regex
-            var r = new RegExp(g[0]);
+            var r = new RegExp(m.regex);
             if (request.text.search(r) != -1) {
                 doSend = true;
             }
         }
 
+
         if (doSend === true) {
             bot_for_group(request, function(botID) {
-                if (g[1].indexOf("http") === 0) {
-                    postImage(botID, g[1]);
-                } else {
-                    postMessage(botID, g[1]);
+                if ("img" in m) {
+                    postImage(botID, m.img);
+                } else if ("text" in m) {
+                    postMessage(botID, m.text);
                 }
             });
+            // Just process the first matched magic and ignore any other matches
+            break;
         }
     }
 }

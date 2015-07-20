@@ -9,7 +9,8 @@
   "dependencies": {
     "director": "",
     "cool-ascii-faces": "~1.3.x",
-    "request": ""
+    "request": "",
+    "jsonfile": ""
   },
   "engines": {
     "node": "0.10.x"

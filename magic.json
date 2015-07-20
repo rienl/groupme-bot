@@ -1,0 +1,16 @@
+[
+    {
+        "key": "!heavy",
+        "img": "http://i.groupme.com/200x185.gif.d5e4b440ad2f4984bf26001ef1db99fb"
+    },
+    {
+        "key": "!chicken",
+        "users": ["27989818"],
+        "img": "http://i.groupme.com/200x108.gif.7c231d7f7c7a4bc8af704313e9bbfcb1"
+    },
+    {
+        "key": "!gary",
+        "users": ["15383146"],
+        "img": "http://i.groupme.com/295x216.gif.30139610b0ae4e0bb0facbd6fc1e7ccf"  
+    }
+]
