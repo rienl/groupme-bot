@@ -11,6 +11,10 @@
     {
         "key": "!gary",
         "users": ["15383146"],
-        "img": "http://i.groupme.com/295x216.gif.30139610b0ae4e0bb0facbd6fc1e7ccf"  
+        "img": "http://i.groupme.com/295x216.gif.30139610b0ae4e0bb0facbd6fc1e7ccf"
+    },
+    {
+        "key": "!courser",
+        "img": "http://i.groupme.com/300x144.gif.ad843e4fb71243068abe6fc7d4fd723a"
     }
 ]
