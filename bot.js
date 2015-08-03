@@ -4,10 +4,6 @@ var cool = require('cool-ascii-faces');
 var jf = require('jsonfile');
 
 var moderatorGroups = [];
-
-var motdUrl = process.env.MOTD_URL;
-var linksUrl = process.env.LINKS_URL;
-
 var pageIDS = [];
 var motdIDs = [];
 
@@ -32,6 +28,20 @@ function get_json_url(url, callback) {
     });
 }
 
+function get_plain_url(url, callback) {
+    var options = {
+        uri : url,
+        method : 'GET'
+    };
+    var res = '';
+    requests(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            return callback(body);
+        } else {
+            return callback(null);
+        }
+    });
+}
 
 // Process the botmap JSON file
 var group_bot_map = {};
@@ -87,28 +97,15 @@ function respond() {
 }
 
 function getMotd(callback) {
-    requests.get(motdUrl,
-        function(error, response, body) {
-            if (error == null && response.statusCode == 200) {
-                return callback(body);
-            } else {
-                return callback(null);
-            }
-        }
-    );
+    get_plain_url(process.env.MOTD_URL, function(response) {
+        return callback(response);
+    });
 }
 
-
 function getLinks(callback) {
-    requests.get(linksUrl,
-        function(error, response, body) {
-            if (error == null && response.statusCode == 200) {
-                return callback(body);
-            } else {
-                return callback(null);
-            }
-        }
-    );
+    get_plain_url(process.env.LINKS_URL, function(response) {
+        return callback(response);
+    });
 }
 
 
