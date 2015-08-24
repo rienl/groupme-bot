@@ -91,6 +91,7 @@ function respond() {
     motd(request);
     links(request);
     magics(request);
+    guardians(request);
 
     this.res.writeHead(200);
     this.res.end();
@@ -108,6 +109,11 @@ function getLinks(callback) {
     });
 }
 
+function getGuardians(callback) {
+    get_plain_url(process.env.GUARDIANS_URL, function(response) {
+        return callback(response);
+    });
+}
 
 function bot_for_group(request, callback) {
     if (request.group_id in group_bot_map) {
@@ -155,6 +161,17 @@ function motd(request) {
 function links(request) {
     if (request.text.indexOf("!links") === 0) {
         getLinks(function(message) {
+            bot_for_group(request, function(botID) {
+                postMessage(botID, message);
+            });
+        });
+    }
+}
+
+
+function guardians(request) {
+    if (request.text.indexOf("!guardians") === 0) {
+        getGuardians(function(message) {
             bot_for_group(request, function(botID) {
                 postMessage(botID, message);
             });
